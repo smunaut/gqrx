@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
     bool            edit_conf = false;
     int             return_code = 0;
 
+    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
