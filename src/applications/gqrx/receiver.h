@@ -52,6 +52,10 @@
 #include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
+#ifdef WITH_FOSPHOR
+#include <gnuradio/fosphor/qt_sink_c.h>
+#endif
+
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_sink.h"
 #elif WITH_PORTAUDIO
@@ -224,6 +228,11 @@ public:
     bool        is_rds_decoder_active(void) const;
     void        reset_rds_parser(void);
 
+    /* fosphor */
+#ifdef WITH_FOSPHOR
+    QWidget *   get_fosphor_widget(void);
+#endif
+
 private:
     void        connect_all(rx_chain type);
     void        update_ddc();
@@ -260,6 +269,13 @@ private:
 
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
+
+#ifdef WITH_FOSPHOR
+    gr::fosphor::qt_sink_c::sptr fosphor; /*!< fosphor block */
+# define FOSPHOR_CALL(x) do { fosphor->x; } while (0)
+#else
+# define FOSPHOR_CALL(x)
+#endif
 
     gr::blocks::rotator_cc::sptr rot;     /*!< Rotator used when only shifting frequency */
 

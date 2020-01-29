@@ -115,6 +115,13 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     for (int i = 0; i < MAX_FFT_SIZE; i++)
         d_iirFftData[i] = -140.0;  // dBFS
 
+    /* fosphor */
+#ifdef WITH_FOSPHOR
+    ui->mainStackWidget->addWidget(rx->get_fosphor_widget());
+    ui->mainToolBar->addAction(ui->actionFosphor);
+    ui->mainToolBar->addSeparator();
+#endif
+
     /* timer for data decoders */
     dec_timer = new QTimer(this);
     connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
@@ -1940,6 +1947,12 @@ void MainWindow::on_actionFullScreen_triggered(bool checked)
         ui->statusBar->show();
         showNormal();
     }
+}
+
+/** Full screen button or menu item toggled. */
+void MainWindow::on_actionFosphor_triggered(bool checked)
+{
+    ui->mainStackWidget->setCurrentIndex(checked ? 1 : 0);
 }
 
 /** Remote control button (or menu item) toggled. */

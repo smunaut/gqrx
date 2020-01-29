@@ -83,6 +83,13 @@ if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
     )
 endif()
 
+if(FOSPHOR_ENABLED)
+    target_link_libraries(${PROJECT_NAME}
+        Qt5::OpenGL
+        gnuradio::gnuradio-fosphor
+    )
+endif()
+
 #build a win32 app, not a console app
 if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "/entry:mainCRTStartup ${CMAKE_EXE_LINKER_FLAGS}")

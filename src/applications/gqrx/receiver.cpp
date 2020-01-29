@@ -122,6 +122,10 @@ receiver::receiver(const std::string input_device,
     dc_corr = make_dc_corr_cc(d_quad_rate, 1.0);
     iq_fft = make_rx_fft_c(8192u, gr::filter::firdes::WIN_HANN);
 
+#ifdef WITH_FOSPHOR
+    fosphor = gr::fosphor::qt_sink_c::make();
+#endif
+
     audio_fft = make_rx_fft_f(8192u, gr::filter::firdes::WIN_HANN);
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
@@ -348,6 +352,8 @@ double receiver::set_input_rate(double rate)
     update_ddc();
     tb->unlock();
 
+    FOSPHOR_CALL(set_frequency_span(rate));
+
     return d_input_rate;
 }
 
@@ -521,6 +527,7 @@ receiver::status receiver::set_rf_freq(double freq_hz)
     d_rf_freq = freq_hz;
 
     src->set_center_freq(d_rf_freq);
+    FOSPHOR_CALL(set_frequency_center(d_rf_freq));
     // FIXME: read back frequency?
 
     return STATUS_OK;
@@ -738,6 +745,13 @@ void receiver::get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &
 {
     audio_fft->get_fft_data(fftPoints, fftsize);
 }
+
+#ifdef WITH_FOSPHOR
+QWidget *receiver::get_fosphor_widget(void)
+{
+    return fosphor->qwidget();
+}
+#endif
 
 receiver::status receiver::set_nb_on(int nbid, bool on)
 {
@@ -1291,6 +1305,9 @@ void receiver::connect_all(rx_chain type)
 
     // Visualization
     tb->connect(b, 0, iq_fft, 0);
+#ifdef WITH_FOSPHOR
+    tb->connect(b, 0, fosphor, 0);
+#endif
 
     // RX demod chain
     switch (type)

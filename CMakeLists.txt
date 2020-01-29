@@ -107,7 +107,7 @@ if(APPLE AND EXISTS /usr/local/opt/qt5)
 endif()
 
 # 3rd Party Dependency Stuff
-find_package(Qt5 COMPONENTS Core Network Widgets Svg REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets Svg OPTIONAL_COMPONENTS OpenGL)
 find_package(Gnuradio-osmosdr REQUIRED)
 
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
@@ -117,6 +117,17 @@ if(NOT Gnuradio_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
 endif()
 
+# Optional fosphor support
+find_package(gnuradio-fosphor)
+
+if(gnuradio-fosphor_FOUND)
+    if (Qt5OpenGL_FOUND)
+        set(FOSPHOR_ENABLED "ON")
+        add_definitions(-DWITH_FOSPHOR)
+    else()
+        message(WARNING "fosphor disabled due to missing Qt5 OpenGL component")
+    endif()
+endif()
 
 # Pass the GNU Radio version as 0xMMNNPP BCD.
 math(EXPR GNURADIO_BCD_VERSION
@@ -220,6 +231,7 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
     ${GNURADIO_RUNTIME_INCLUDE_DIRS}
     ${GNURADIO_OSMOSDR_INCLUDE_DIRS}
+    ${GNURADIO_FOSPHOR_INCLUDE_DIRS}
 )
 
 link_directories(
